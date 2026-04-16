@@ -24,7 +24,7 @@ class PubMedXmlParser {
       const rawArticles = root?.PubmedArticleSet?.PubmedArticle;
       if (!rawArticles) return [];
       const articles = Array.isArray(rawArticles) ? rawArticles : [rawArticles];
-      return articles.map((a) => this._normalizeArticle(a)).filter(Boolean);
+      return articles.map((a) => this.#normalizeArticle(a)).filter(Boolean);
     } catch (err) {
       console.error('[XmlParser] Parse error:', err.message);
       return [];
@@ -33,12 +33,12 @@ class PubMedXmlParser {
 
   /** Parse a single PubmedArticle node — useful for unit tests. */
   parseSingleArticle(articleNode) {
-    return this._normalizeArticle(articleNode);
+    return this.#normalizeArticle(articleNode);
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────
 
-  _normalizeArticle(node) {
+  #normalizeArticle(node) {
     try {
       const medline = node?.MedlineCitation;
       const article = medline?.Article;
@@ -57,11 +57,11 @@ class PubMedXmlParser {
       return {
         pmid,
         title: title || null,
-        abstract:          this._extractAbstract(article.Abstract),
-        authors:           this._extractAuthors(article.AuthorList),
-        year:              this._extractYear(article.Journal),
+        abstract:          this.#extractAbstract(article.Abstract),
+        authors:           this.#extractAuthors(article.AuthorList),
+        year:              this.#extractYear(article.Journal),
         journal:           article.Journal?.Title ?? null,
-        publicationTypes:  this._extractPublicationTypes(article.PublicationTypeList),
+        publicationTypes:  this.#extractPublicationTypes(article.PublicationTypeList),
         source:            'PubMed',
       };
     } catch (err) {
@@ -70,7 +70,7 @@ class PubMedXmlParser {
     }
   }
 
-  _extractAbstract(abstractNode) {
+  #extractAbstract(abstractNode) {
     const nodes = abstractNode?.AbstractText;
     if (!nodes) return null;
     const arr = Array.isArray(nodes) ? nodes : [nodes];
@@ -86,7 +86,7 @@ class PubMedXmlParser {
     return parts.filter(Boolean).join(' ').trim() || null;
   }
 
-  _extractAuthors(authorListNode, max = 10) {
+  #extractAuthors(authorListNode, max = 10) {
     const raw = authorListNode?.Author;
     if (!raw) return [];
     const authors = (Array.isArray(raw) ? raw : [raw]).slice(0, max);
@@ -99,7 +99,7 @@ class PubMedXmlParser {
     return formatted;
   }
 
-  _extractYear(journalNode) {
+  #extractYear(journalNode) {
     const pubDate = journalNode?.JournalIssue?.PubDate;
     if (!pubDate) return null;
     const pd = Array.isArray(pubDate) ? pubDate[0] : pubDate;
@@ -111,7 +111,7 @@ class PubMedXmlParser {
     return null;
   }
 
-  _extractPublicationTypes(listNode) {
+  #extractPublicationTypes(listNode) {
     const types = listNode?.PublicationType;
     if (!types) return [];
     return (Array.isArray(types) ? types : [types])

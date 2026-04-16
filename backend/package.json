@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test": "jest --testPathPattern=unit --coverage",
-    "test:integration": "jest --testPathPattern=integration",
+    "test": "jest --testPathPatterns=unit --coverage",
+    "test:integration": "jest --testPathPatterns=integration",
     "test:all": "jest --coverage",
     "test:watch": "jest --watch"
   },
