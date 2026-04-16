@@ -7,14 +7,18 @@ const FALLBACK_MODEL = 'mixtral-8x7b-32768';
 const FAST_MODEL = 'llama-3.1-8b-instant';
 
 async function synthesize(params) {
+  const { onStream, ...promptParams } = params;
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const systemPrompt = buildSystemPrompt();
-  const userPrompt = buildUserPrompt(params);
+  const userPrompt = buildUserPrompt(promptParams);
 
   const callModel = async (model) => {
-    console.log(`[GROQ] Calling ${model}...`);
+    console.log(`[GROQ] Calling ${model} with streaming...`);
     const startTime = Date.now();
-    const response = await groq.chat.completions.create({
+    
+    // We remove response_format: { type: 'json_object' } if we are streaming, 
+    // or we can keep it but we just stream the JSON string chunks. Groq supports streaming JSON mode.
+    const stream = await groq.chat.completions.create({
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
@@ -22,13 +26,26 @@ async function synthesize(params) {
       model: model,
       temperature: 0.2,
       max_tokens: 3000,
-      response_format: { type: 'json_object' }
+      response_format: { type: 'json_object' },
+      stream: true
     });
+
+    let fullContent = '';
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content || '';
+      fullContent += delta;
+      if (delta && onStream) {
+        onStream(delta);
+      }
+    }
+
     const processingMs = Date.now() - startTime;
-    const content = response.choices[0].message.content;
-    const parsed = JSON.parse(content);
-    const tokensUsed = response.usage?.total_tokens || 0;
-    console.log(`[GROQ] Success with ${model}. Tokens: ${tokensUsed}`);
+    // With streaming, total_tokens isn't always returned directly in the stream unless stream_options is set.
+    // We'll approximate or default to 0 if not available.
+    const tokensUsed = 0; 
+    console.log(`[GROQ] Streaming success with ${model}.`);
+    
+    const parsed = JSON.parse(fullContent);
     return {
       ...parsed,
       _meta: { model, tokensUsed, processingMs }

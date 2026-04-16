@@ -4,6 +4,8 @@ const pubmedService   = require('./pubmedService');
 const openalexService = require('./openalexService');
 const trialsService   = require('./trialsService');
 
+const { expand } = require('./queryExpander');
+
 class RetrievalOrchestrator {
   /**
    * Run all 3 retrieval sources in parallel.
@@ -16,10 +18,12 @@ class RetrievalOrchestrator {
     console.log(`[RETRIEVAL] Starting — query: "${query}" | disease: "${disease}" | location: "${location ?? 'any'}"`);
     const start = Date.now();
 
+    const expanded = await expand({ disease, query, location });
+
     const [pubmedRes, openalexRes, trialsRes] = await Promise.allSettled([
-      pubmedService.search(`${query} AND ${disease}`, 100),
-      openalexService.search(`${query} ${disease}`,  100),
-      trialsService.search({ condition: disease, intervention: query, location, pageSize: 50 }),
+      pubmedService.search(expanded.pubmedQuery, 100),
+      openalexService.search(expanded.openalexQuery,  100),
+      trialsService.search({ condition: expanded.trialsCondition, intervention: expanded.trialsIntervention, location, pageSize: 50 }),
     ]);
 
     const elapsed = Date.now() - start;
@@ -44,12 +48,7 @@ class RetrievalOrchestrator {
       trialsTotal:   this._total(trialsRes),
       total:         publications.length + trials.length,
       elapsedMs:     elapsed,
-      expandedQuery: {
-        pubmedQuery:        `${query} AND ${disease}`,
-        openalexQuery:      `${query} ${disease}`,
-        trialsCondition:    disease,
-        trialsIntervention: query,
-      },
+      expandedQuery: expanded,
     };
 
     console.log(`[RETRIEVAL] Done in ${elapsed}ms | pubs: ${publications.length} | trials: ${trials.length} | total: ${stats.total}`);
@@ -67,4 +66,6 @@ class RetrievalOrchestrator {
   }
 }
 
-module.exports = new RetrievalOrchestrator();
+const instance = new RetrievalOrchestrator();
+instance.retrieve = instance.retrieve.bind(instance);
+module.exports = instance;
