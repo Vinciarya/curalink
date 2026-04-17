@@ -9,10 +9,25 @@ const chatSchema = Joi.object({
 });
 
 const validateChatRequest = (req, res, next) => {
-  const { error } = chatSchema.validate(req.body);
+  const normalizedBody = {
+    ...req.body,
+    sessionId: req.body?.sessionId || undefined,
+    patientName: typeof req.body?.patientName === 'string' ? req.body.patientName.trim() || undefined : req.body?.patientName,
+    disease: typeof req.body?.disease === 'string' ? req.body.disease.trim() : req.body?.disease,
+    query: typeof req.body?.query === 'string' ? req.body.query.trim() : req.body?.query,
+    location: typeof req.body?.location === 'string' ? req.body.location.trim() || undefined : req.body?.location
+  };
+
+  const { error, value } = chatSchema.validate(normalizedBody, {
+    abortEarly: true,
+    stripUnknown: true
+  });
+
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
+
+  req.body = value;
   next();
 };
 
