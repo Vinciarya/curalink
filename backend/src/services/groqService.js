@@ -3,8 +3,9 @@ const { buildSystemPrompt } = require('../prompts/systemPrompt');
 const { buildUserPrompt } = require('../prompts/userPrompt');
 
 const PRIMARY_MODEL = 'llama-3.3-70b-versatile';
-const FALLBACK_MODEL = 'llama-3.1-8b-instant';
-const EMERGENCY_MODEL = 'llama3-8b-8192';
+const FALLBACK_MODEL = 'mixtral-8x7b-32768'; // High context, separate quota
+const EMERGENCY_MODEL = 'llama-3.1-8b-instant'; // Highest speed/volume
+const SECONDARY_EMERGENCY = 'gemma2-9b-it'; // Backup for high-volume
 
 async function synthesize(params) {
   const { onStream, ...promptParams } = params;
@@ -58,15 +59,19 @@ async function synthesize(params) {
   } catch (error) {
     console.warn(`[GROQ] PRIMARY_MODEL error: ${error.message}. Falling back to ${FALLBACK_MODEL}.`);
     try {
-      // Small models need compressed data (fewer papers/chars)
       return await callModel(FALLBACK_MODEL, true);
     } catch (fallbackError) {
       console.warn(`[GROQ] FALLBACK_MODEL error: ${fallbackError.message}. Falling back to ${EMERGENCY_MODEL}.`);
       try {
         return await callModel(EMERGENCY_MODEL, true);
       } catch (emergencyError) {
-        console.error(`[GROQ] EMERGENCY_MODEL error: ${emergencyError.message}`);
-        throw new Error('All Groq models (Primary, Fallback, and Emergency) failed or reached limits.');
+        console.warn(`[GROQ] EMERGENCY_MODEL error: ${emergencyError.message}. Falling back to ${SECONDARY_EMERGENCY}.`);
+        try {
+          return await callModel(SECONDARY_EMERGENCY, true);
+        } catch (secondaryError) {
+          console.error(`[GROQ] ALL MODELS FAILED: ${secondaryError.message}`);
+          throw new Error('All Groq models (Primary, Fallback, Emergency, and Gemma) failed or reached limits.');
+        }
       }
     }
   }
