@@ -3,17 +3,23 @@ const { buildSystemPrompt } = require('../prompts/systemPrompt');
 const { buildUserPrompt } = require('../prompts/userPrompt');
 
 const PRIMARY_MODEL = 'llama-3.3-70b-versatile';
-const FALLBACK_MODEL = 'mixtral-8x7b-32768';
-const EMERGENCY_MODEL = 'llama-3.1-8b-instant';
+const FALLBACK_MODEL = 'llama-3.1-8b-instant';
+const EMERGENCY_MODEL = 'llama3-8b-8192';
 
 async function synthesize(params) {
   const { onStream, ...promptParams } = params;
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const systemPrompt = buildSystemPrompt();
-  const userPrompt = buildUserPrompt(promptParams);
 
-  const callModel = async (model) => {
-    console.log(`[GROQ] Calling ${model} with streaming...`);
+  const callModel = async (model, compress = false) => {
+    // If we're on a smaller model, we compress the data to fit the 6k token limit
+    const userPrompt = buildUserPrompt({
+      ...promptParams,
+      publications: compress ? promptParams.publications.slice(0, 5) : promptParams.publications,
+      trials: compress ? promptParams.trials.slice(0, 3) : promptParams.trials
+    });
+
+    console.log(`[GROQ] Calling ${model} (Compressed: ${compress}) with streaming...`);
     const startTime = Date.now();
     
     const stream = await groq.chat.completions.create({
@@ -23,7 +29,7 @@ async function synthesize(params) {
       ],
       model: model,
       temperature: 0.2,
-      max_tokens: 3000,
+      max_tokens: 2500,
       response_format: { type: 'json_object' },
       stream: true
     });
@@ -48,15 +54,16 @@ async function synthesize(params) {
   };
 
   try {
-    return await callModel(PRIMARY_MODEL);
+    return await callModel(PRIMARY_MODEL, false);
   } catch (error) {
     console.warn(`[GROQ] PRIMARY_MODEL error: ${error.message}. Falling back to ${FALLBACK_MODEL}.`);
     try {
-      return await callModel(FALLBACK_MODEL);
+      // Small models need compressed data (fewer papers/chars)
+      return await callModel(FALLBACK_MODEL, true);
     } catch (fallbackError) {
       console.warn(`[GROQ] FALLBACK_MODEL error: ${fallbackError.message}. Falling back to ${EMERGENCY_MODEL}.`);
       try {
-        return await callModel(EMERGENCY_MODEL);
+        return await callModel(EMERGENCY_MODEL, true);
       } catch (emergencyError) {
         console.error(`[GROQ] EMERGENCY_MODEL error: ${emergencyError.message}`);
         throw new Error('All Groq models (Primary, Fallback, and Emergency) failed or reached limits.');

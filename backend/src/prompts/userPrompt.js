@@ -53,8 +53,8 @@ function buildUserPrompt({ patientName, disease, userQuery, location, conversati
         prompt += `         RELEVANCE SCORE: ${Number(pub.score).toFixed(2)}\n`;
       }
       let abstract = pub.abstract || '';
-      if (abstract.length > 500) {
-        abstract = abstract.substring(0, 500) + '...';
+      if (abstract.length > 350) {
+        abstract = abstract.substring(0, 350) + '...';
       }
       prompt += `         ABSTRACT: ${abstract}\n`;
       prompt += `         URL: ${pub.url || ''}\n`;
@@ -75,8 +75,8 @@ function buildUserPrompt({ patientName, disease, userQuery, location, conversati
       let locs = Array.isArray(trial.locations) ? trial.locations.join(', ') : trial.location;
       prompt += `         LOCATION: ${locs || ''}\n`;
       let eligibility = trial.eligibility || '';
-      if (eligibility.length > 400) {
-        eligibility = eligibility.substring(0, 400) + '...';
+      if (eligibility.length > 250) {
+        eligibility = eligibility.substring(0, 250) + '...';
       }
       prompt += `         ELIGIBILITY: ${eligibility}\n`;
       prompt += `         CONTACT: ${trial.contact || ''}\n`;
