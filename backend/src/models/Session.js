@@ -4,6 +4,7 @@ const MessageSchema = new mongoose.Schema({
   role: { type: String, enum: ['user', 'assistant'], required: true },
   content: { type: String, required: true },
   query: String,
+  searchTerms: [String],
   publications: [{
     id: String,
     title: String,
@@ -35,6 +36,7 @@ const MessageSchema = new mongoose.Schema({
     model: String,
     tokensUsed: Number
   },
+  response: { type: mongoose.Schema.Types.Mixed },
   timestamp: { type: Date, default: Date.now }
 }, { _id: true });
 

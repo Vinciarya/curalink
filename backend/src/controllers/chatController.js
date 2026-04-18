@@ -103,7 +103,9 @@ const chat = async (req, res) => {
       publications,
       trials,
       retrievalStats: stats,
-      groqMeta: llmResponse._meta
+      groqMeta: llmResponse._meta,
+      response: llmResponse,
+      searchTerms: expanded.keyTerms || []
     });
     await session.save();
 

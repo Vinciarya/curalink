@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './car
 import { Input } from './input';
 import { Textarea } from './textarea';
 import { Badge } from './badge';
+import { Check, ClipboardCheck, LayoutGrid, Search, Sparkles } from 'lucide-react';
 
 export default function PatientForm() {
   const { setPatientContext } = useChatStore();
@@ -15,7 +16,8 @@ export default function PatientForm() {
   const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    
     if (!disease.trim()) {
       setError('Disease / Condition is required');
       return;
@@ -24,6 +26,7 @@ export default function PatientForm() {
       setError('A question is required');
       return;
     }
+    setError('');
 
     setPatientContext({
       patientName: patientName || 'Anonymous',
@@ -35,68 +38,90 @@ export default function PatientForm() {
   };
 
   return (
-    <Card className="mx-auto mt-8 w-full max-w-3xl overflow-hidden">
-      <CardHeader className="border-b border-[var(--bg-border)] bg-[linear-gradient(135deg,rgba(0,194,184,0.10),transparent_55%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent)]">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge>Patient Intake</Badge>
-          <Badge variant="secondary">Research Session</Badge>
+    <Card className="mx-auto mt-8 w-full max-w-3xl overflow-hidden border-border bg-white shadow-xl">
+      <CardHeader className="border-b border-border bg-accent-soft">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 font-black tracking-widest">Clinical Intake</Badge>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white border border-border">
+             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+             <span className="text-[10px] font-black text-muted uppercase tracking-widest">Live Protocol</span>
+          </div>
         </div>
-        <CardTitle>Start a focused medical research thread</CardTitle>
-        <CardDescription>
-          Add the core patient context once, then keep follow-up questions grounded in that same condition and location.
+        <CardTitle className="text-3xl font-black text-foreground flex items-center gap-3">
+          Medical Research Assistant
+          <Sparkles className="w-6 h-6 text-primary" />
+        </CardTitle>
+        <CardDescription className="text-[15px] text-muted font-bold max-w-xl">
+          Define your clinical parameters to initiate the deep research pipeline and evidence synthesis.
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="pt-6">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm text-[var(--text-secondary)]">Patient Name <span className="opacity-50">(optional)</span></label>
+      <CardContent className="pt-8 px-8 pb-8">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-muted uppercase tracking-widest ml-1">Patient Identifier</label>
               <Input
                 type="text"
                 value={patientName}
                 onChange={e => setPatientName(e.target.value)}
-                placeholder="e.g. Anonymous"
+                placeholder="e.g. Pt-721 or Anonymous"
+                className="bg-background border-border h-12 rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all font-sans font-bold"
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm text-[var(--text-secondary)]">Location <span className="opacity-50">(optional)</span></label>
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-muted uppercase tracking-widest ml-1">Focus Location</label>
               <Input
                 type="text"
                 value={location}
                 onChange={e => setLocation(e.target.value)}
-                placeholder="e.g. Toronto, Canada"
+                placeholder="e.g. USA, Canada"
+                className="bg-background border-border h-12 rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all font-sans font-bold"
               />
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[var(--text-primary)]">Disease / Condition <span className="text-red-400">*</span></label>
+          <div className="space-y-2">
+            <label className="text-[11px] font-black text-primary uppercase tracking-widest ml-1 flex items-center gap-1.5">
+              Condition <span className="text-red-500/50">*</span>
+            </label>
             <Input
               type="text"
               value={disease}
               onChange={e => { setDisease(e.target.value); setError(''); }}
-              placeholder="e.g. Parkinson's disease"
+              placeholder="e.g. Stage IV Lung Adenocarcinoma"
+              className="bg-background border-border h-12 rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all font-black text-lg"
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[var(--text-primary)]">Your Question <span className="text-red-400">*</span></label>
+          <div className="space-y-2">
+            <label className="text-[11px] font-black text-primary uppercase tracking-widest ml-1 flex items-center gap-1.5">
+              Research Objective <span className="text-red-500/50">*</span>
+            </label>
             <Textarea
-              className="h-28 resize-none"
+              className="h-32 resize-none bg-background border-border p-4 rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all leading-relaxed font-bold"
               value={query}
               onChange={e => { setQuery(e.target.value); setError(''); }}
-              placeholder="e.g. Latest treatments for deep brain stimulation"
+              placeholder="e.g. What are the latest frontline combination therapies including Pembrolizumab?"
             />
           </div>
 
-          {error ? <div className="text-sm text-[var(--accent-warning)]">{error}</div> : null}
+          {error ? <div className="text-sm text-red-400/80 bg-red-400/5 p-3 rounded-lg border border-red-400/10 italic">{error}</div> : null}
 
-          <div className="flex justify-end mt-2">
-            <Button type="submit" size="lg">Start Research</Button>
+          <div className="flex justify-end pt-4">
+            <Button 
+                type="submit" 
+                size="lg" 
+                className="bg-primary hover:bg-primary-hover text-white font-black rounded-xl h-12 px-10 transition-all transform hover:-translate-y-0.5"
+            >
+                Start Research Session
+                <Search className="w-4 h-4 ml-2" />
+            </Button>
           </div>
         </form>
       </CardContent>
     </Card>
   );
 }
+
+

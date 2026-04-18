@@ -1,6 +1,6 @@
 export default function ConditionOverview({ text }) {
   return (
-    <div className="text-lg font-light tracking-wide leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+    <div className="font-serif text-lg leading-relaxed mb-6 italic" style={{ color: 'var(--muted)' }}>
       {text}
     </div>
   );

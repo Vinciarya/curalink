@@ -16,11 +16,13 @@ export default function InsightCard({ insight, index }) {
       <div className={`confidence-bar confidence-${insight.confidence?.toLowerCase() || 'moderate'}`} />
 
       <div className="insight-content flex flex-col gap-3 flex-1">
-        <p className="insight-finding leading-relaxed" style={{ color: 'var(--text-primary)' }}>{insight.finding}</p>
+        <p className="insight-finding leading-relaxed" style={{ color: 'var(--text)' }}>
+          {insight.finding || insight.insight}
+        </p>
 
-        {insight.sourceRefs && insight.sourceRefs.length > 0 && (
+        {(insight.sourceRefs || insight.citations)?.length > 0 && (
           <div className="citation-chips flex flex-wrap gap-2 mt-1">
-            {insight.sourceRefs.map(ref => (
+            {(insight.sourceRefs || insight.citations).map(ref => (
               <CitationChip
                 key={ref}
                 citation={ref}

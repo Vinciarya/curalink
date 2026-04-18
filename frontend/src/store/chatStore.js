@@ -60,21 +60,33 @@ export const useChatStore = create((set) => ({
     streamingText: state.streamingText + token
   })),
 
-  onComplete: (response) => set(state => ({
-    isStreaming: false,
-    streamingText: '',
-    pipelineStatus: 'complete',
-    statusMessage: '',
-    messages: [...state.messages, {
-      id: Date.now(),
-      role: 'assistant',
-      response,
-      publications: state.publications,
-      trials: state.trials,
-      retrievalStats: state.retrievalStats,
-      timestamp: new Date()
-    }]
-  })),
+  onComplete: (data) => set(state => {
+    let finalResponse = data;
+    if (typeof data === 'string') {
+      try {
+        finalResponse = JSON.parse(data);
+      } catch (e) {
+        finalResponse = data;
+      }
+    }
+    
+    return {
+      isStreaming: false,
+      streamingText: '',
+      pipelineStatus: 'complete',
+      statusMessage: '',
+      messages: [...state.messages, {
+        id: Date.now(),
+        role: 'assistant',
+        response: finalResponse,
+        publications: state.publications,
+        trials: state.trials,
+        retrievalStats: state.retrievalStats,
+        timestamp: new Date()
+      }]
+    };
+  }),
+
 
   addUserMessage: (query) => set(state => ({
     messages: [...state.messages, {
@@ -112,7 +124,20 @@ export const useChatStore = create((set) => ({
 
   loadSession: (sessionData) => set({
     sessionId: sessionData.sessionId,
-    messages: sessionData.messages.map(m => ({ ...m, id: m._id || Date.now() })),
+    messages: sessionData.messages.map(m => {
+      let parsedResponse = m.response;
+      if (typeof m.response === 'string') {
+        try { parsedResponse = JSON.parse(m.response); } catch(e) {}
+      }
+      return { 
+        ...m, 
+        id: m._id || Date.now(),
+        response: parsedResponse
+      };
+    }),
+
+    searchTerms: sessionData.messages.filter(m => m.role === 'assistant').pop()?.searchTerms || [],
+
     patientContext: {
       patientName: sessionData.patientName,
       disease: sessionData.disease,
@@ -120,6 +145,8 @@ export const useChatStore = create((set) => ({
     },
     isPatientFormOpen: false
   }),
+
+  reopenPatientForm: () => set({ isPatientFormOpen: true }),
 
   setSessionHistory: (history) => set({ sessionHistory: history }),
 

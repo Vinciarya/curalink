@@ -49,6 +49,7 @@ export default function AppSidebar() {
     loadSession,
     setSessionHistory,
     toggleSourcesPanel,
+    reopenPatientForm,
   } = useChatStore()
 
   const [query, setQuery] = useState('')
@@ -113,17 +114,17 @@ export default function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-        <SidebarHeader className="bg-sidebar/50 backdrop-blur-sm">
+        <SidebarHeader className="bg-background">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild className="hover:bg-transparent">
                 <a href="#">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[#00C2B8] text-white shadow-lg shadow-[#00C2B8]/20">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-white">
                     <FlaskConical className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-bold tracking-widest uppercase text-[#00C2B8]">Curalink</span>
-                    <span className="truncate text-[10px] font-medium uppercase tracking-[0.1em] text-sidebar-foreground/40">Clinical Research Hub</span>
+                    <span className="truncate font-black tracking-widest uppercase text-primary">Curalink</span>
+                    <span className="truncate text-[10px] font-bold uppercase tracking-[0.1em] text-muted">Clinical Research Hub</span>
                   </div>
                 </a>
               </SidebarMenuButton>
@@ -147,21 +148,25 @@ export default function AppSidebar() {
 
           <SidebarGroup>
             <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/30">Active Context</SidebarGroupLabel>
+            <SidebarGroupAction title="New Research" onClick={newSession}>
+              <Plus /> <span className="sr-only">New Research</span>
+            </SidebarGroupAction>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     tooltip="Clinical Condition"
-                    className="data-[active=true]:bg-[#00C2B8]/10"
+                    className="data-[active=true]:bg-primary/10 cursor-pointer"
                     isActive={!!patientContext.disease}
+                    onClick={reopenPatientForm}
                   >
-                    <Activity className={cn("size-4", patientContext.disease ? "text-[#00C2B8]" : "opacity-40")} />
-                    <span className={cn(patientContext.disease ? "font-medium" : "opacity-40 italic text-xs")}>
+                    <Activity className={cn("size-4", patientContext.disease ? "text-primary" : "opacity-40")} />
+                    <span className={cn(patientContext.disease ? "font-bold" : "opacity-40 italic text-xs")}>
                       {patientContext.disease || 'No active study'}
                     </span>
                   </SidebarMenuButton>
                   {patientContext.location ? (
-                    <SidebarMenuBadge className="bg-[#00C2B8]/20 text-[#00C2B8] border-[#00C2B8]/20">
+                    <SidebarMenuBadge className="bg-primary/10 text-primary border-primary/20">
                       {patientContext.location.slice(0, 2).toUpperCase()}
                     </SidebarMenuBadge>
                   ) : null}
@@ -191,12 +196,12 @@ export default function AppSidebar() {
                         tooltip={session.disease}
                         className="py-1.5 h-auto group-data-[collapsible=icon]:p-2"
                       >
-                        <FolderOpen className={cn("size-3.5", session.sessionId === sessionId ? "text-[#00C2B8]" : "opacity-40")} />
+                        <FolderOpen className={cn("size-3.5", session.sessionId === sessionId ? "text-primary" : "opacity-40")} />
                         <div className="flex flex-col gap-0.5 overflow-hidden">
-                          <span className={cn("truncate text-xs", session.sessionId === sessionId ? "font-semibold" : "opacity-70")}>
+                          <span className={cn("truncate text-xs", session.sessionId === sessionId ? "font-bold" : "font-medium opacity-70")}>
                             {session.patientName || 'Untitled session'}
                           </span>
-                          <span className="truncate text-[10px] text-sidebar-foreground/30 font-medium">
+                          <span className="truncate text-[10px] text-muted font-bold">
                             {session.disease}
                           </span>
                         </div>

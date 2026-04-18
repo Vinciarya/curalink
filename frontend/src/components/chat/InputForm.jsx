@@ -65,17 +65,14 @@ export default function InputForm() {
   };
 
   if (isPatientFormOpen) {
-    return (
-      <div className="w-full flex-shrink-0 p-6 flex items-center justify-center">
-        <PatientForm />
-      </div>
-    );
+    return <PatientForm />;
   }
+
 
   const isProcessing = pipelineStatus !== 'idle' && pipelineStatus !== 'complete' && pipelineStatus !== 'error';
 
   return (
-    <div className="relative z-10 w-full border-t border-[var(--bg-border)] bg-[rgba(12,16,22,0.86)] px-4 py-4 backdrop-blur-xl">
+    <div className="relative z-10 w-full border-t border-border bg-background px-4 py-4">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-3">
         {patientContext.disease ? (
           <div className="flex flex-wrap gap-2">
@@ -85,11 +82,10 @@ export default function InputForm() {
           </div>
         ) : null}
 
-        <form onSubmit={handleFollowUpSubmit} className="relative flex w-full items-end overflow-hidden rounded-2xl border border-[var(--bg-border)] bg-[linear-gradient(180deg,rgba(16,22,30,0.95),rgba(10,14,20,0.95))] transition-colors">
+        <form onSubmit={handleFollowUpSubmit} className="relative flex w-full items-end overflow-hidden rounded-2xl border border-border bg-white transition-colors">
           <textarea
             ref={textareaRef}
-            className="flex-1 max-h-[120px] resize-none bg-transparent px-5 py-4 outline-none"
-            style={{ color: 'var(--text-primary)' }}
+            className="flex-1 max-h-[120px] resize-none bg-transparent px-5 py-4 outline-none font-bold text-foreground"
             placeholder="Ask a follow-up question..."
             value={query}
             onChange={handleInput}
@@ -109,7 +105,7 @@ export default function InputForm() {
           </div>
         </form>
 
-        <div className="flex items-center justify-between px-1 text-xs text-[var(--text-muted)]">
+        <div className="flex items-center justify-between px-1 text-xs text-muted font-bold">
           <span>Shift + Enter for a new line</span>
           <span className="inline-flex items-center gap-1">
             Evidence-grounded answer

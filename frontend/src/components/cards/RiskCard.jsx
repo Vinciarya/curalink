@@ -1,26 +1,55 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Info } from 'lucide-react';
+import { useChatStore } from '../../store/chatStore';
 
 export default function RiskCard() {
+  const { messages } = useChatStore();
+  const lastAssistantMessage = [...messages].reverse().find(m => m.role === 'assistant');
+  
+  let gaps = [];
+  
+  if (lastAssistantMessage?.response) {
+    const response = lastAssistantMessage.response;
+    let data = response;
+    if (typeof response === 'string') {
+      try { data = JSON.parse(response); } catch (e) { data = {}; }
+    }
+    
+    if (data.researchGaps) {
+      gaps = Array.isArray(data.researchGaps) ? data.researchGaps : [data.researchGaps];
+    }
+  }
+
   return (
-    <Card className="rounded-2xl border border-red-500/10 bg-black/20 shadow-xl backdrop-blur-md overflow-hidden relative group transition-all duration-300 hover:bg-black/30 hover:border-red-500/20">
-      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-red-500/40 opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
-      <CardHeader className="pb-3 border-b border-red-500/10 bg-red-500/[0.02]">
-        <CardTitle className="text-[15px] font-semibold flex items-center gap-2.5 text-slate-100 tracking-wide">
-          <div className="p-1.5 rounded-lg bg-red-500/10 text-red-400">
+    <Card className="rounded-2xl border border-border bg-white shadow-md overflow-hidden relative group transition-all duration-300 hover:border-red-500/30">
+      <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-red-500 opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+      <CardHeader className="pb-3 border-b border-border bg-red-50/50">
+        <CardTitle className="text-[14px] font-black flex items-center gap-2.5 text-foreground tracking-wide uppercase">
+          <div className="p-1.5 rounded-lg bg-red-100 text-red-600">
             <AlertTriangle className="w-4 h-4" />
           </div>
-          Risks & Limitations
+          Evidence Gaps & Risks
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-5">
-        <ul className="space-y-3 text-[13px] text-slate-400 list-disc pl-5 marker:text-red-500/50">
-          <li className="leading-snug">Systematic bias in early-phase reports regarding novel biologics.</li>
-          <li className="leading-snug">Contraindicated for patients with severe hepatic impairment.</li>
-          <li className="leading-snug">Long-term toxicity profile of combination regimens is currently undocumented.</li>
-        </ul>
+        {gaps.length > 0 ? (
+          <ul className="space-y-4 text-[14px] text-foreground font-bold list-none">
+            {gaps.map((gap, idx) => (
+              <li key={idx} className="leading-relaxed flex gap-3 items-start p-2 rounded-lg hover:bg-red-50 transition-colors">
+                 <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
+                 {typeof gap === 'string' ? gap : JSON.stringify(gap)}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-6 text-center">
+            <Info className="w-5 h-5 text-slate-600 mb-2" />
+            <p className="text-[12px] text-slate-500 italic">No significant research gaps identified in current analysis.</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 }
+

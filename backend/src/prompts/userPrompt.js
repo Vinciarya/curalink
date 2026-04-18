@@ -98,8 +98,8 @@ function buildUserPrompt({ patientName, disease, userQuery, location, conversati
   "conditionOverview": "2-3 sentence overview of ${disease} relevant to this query. Cite sources.",
   "keyInsights": [
     {
-      "insight": "Specific finding, fully cited",
-      "citations": ["P1", "P2"],
+      "finding": "Specific finding, fully cited",
+      "sourceRefs": ["P1", "P2"],
       "confidence": "high|moderate|low",
       "explanation": "Why this confidence level"
     }

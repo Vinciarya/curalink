@@ -1,12 +1,16 @@
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import AppShell from './components/layout/AppShell';
 
 function App() {
   return (
-    <TooltipProvider>
-      <AppShell />
-    </TooltipProvider>
+    <SidebarProvider>
+      <TooltipProvider>
+        <AppShell />
+      </TooltipProvider>
+    </SidebarProvider>
   );
 }
 
 export default App;
+

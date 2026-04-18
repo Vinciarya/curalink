@@ -3,6 +3,7 @@ import InsightsList from './InsightsList';
 import PatientGuidance from './PatientGuidance';
 import ResearchGaps from './ResearchGaps';
 import Disclaimer from './Disclaimer';
+import ClinicalTrialSummary from './ClinicalTrialSummary';
 import SourcesFooter from './SourcesFooter';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -19,6 +20,18 @@ export default function SynthesisCard({ response }) {
 
       {response.conditionOverview ? <ConditionOverview text={response.conditionOverview} /> : null}
       {response.keyInsights && response.keyInsights.length > 0 ? <InsightsList insights={response.keyInsights} /> : null}
+      
+      {response.clinicalTrials && response.clinicalTrials.length > 0 && (
+        <div className="flex flex-col gap-3 mt-4">
+          <h3 className="font-serif text-xl mb-2 tracking-wide font-black" style={{ color: 'var(--text)' }}>Relevant Clinical Trials</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {response.clinicalTrials.map((trial, index) => (
+              <ClinicalTrialSummary key={index} trial={trial} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {response.patientGuidance ? <PatientGuidance text={response.patientGuidance} /> : null}
       {response.researchGaps ? <ResearchGaps text={response.researchGaps} /> : null}
       {response.disclaimer ? <Disclaimer text={response.disclaimer} /> : null}
