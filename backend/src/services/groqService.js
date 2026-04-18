@@ -3,8 +3,8 @@ const { buildSystemPrompt } = require('../prompts/systemPrompt');
 const { buildUserPrompt } = require('../prompts/userPrompt');
 
 const PRIMARY_MODEL = 'llama-3.3-70b-versatile';
-const FALLBACK_MODEL = 'mixtral-8x7b-32768'; // High context, separate quota
-const EMERGENCY_MODEL = 'llama-3.1-8b-instant'; // Highest speed/volume
+const FALLBACK_MODEL = 'llama-3.1-8b-instant'; // High context, separate quota
+const EMERGENCY_MODEL = 'mixtral-8x7b-32768'; // Highest speed/volumellama-3.1-8b-instant
 const SECONDARY_EMERGENCY = 'gemma2-9b-it'; // Backup for high-volume
 
 async function synthesize(params) {
