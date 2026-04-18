@@ -21,6 +21,7 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 
+app.get('/', (req, res) => res.json({ status: 'ok', service: 'curalink-api' }));
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date(), version: '1.0.0' }));
 
 app.use('/api/chat', chatRoutes);

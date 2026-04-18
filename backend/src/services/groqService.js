@@ -3,7 +3,7 @@ const { buildSystemPrompt } = require('../prompts/systemPrompt');
 const { buildUserPrompt } = require('../prompts/userPrompt');
 
 const PRIMARY_MODEL = 'llama-3.3-70b-versatile';
-const FALLBACK_MODEL = 'llama-3.1-70b-versatile';
+const FALLBACK_MODEL = 'mixtral-8x7b-32768';
 const EMERGENCY_MODEL = 'llama-3.1-8b-instant';
 
 async function synthesize(params) {
