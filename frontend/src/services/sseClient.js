@@ -1,5 +1,5 @@
-const getChatPayload = ({ disease, query, location, sessionId }) => {
-  const payload = { disease, query };
+const getChatPayload = ({ disease, query, location, sessionId, userId }) => {
+  const payload = { disease, query, userId };
 
   if (location) payload.location = location;
   if (sessionId) payload.sessionId = sessionId;
@@ -35,7 +35,7 @@ const parseSseChunk = (chunk) => {
   }
 };
 
-export const streamChat = async ({ disease, query, location, sessionId }, callbacks) => {
+export const streamChat = async ({ disease, query, location, sessionId, userId }, callbacks) => {
   const {
     onInit,
     onExpanded,
@@ -52,7 +52,7 @@ export const streamChat = async ({ disease, query, location, sessionId }, callba
     const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(getChatPayload({ disease, query, location, sessionId }))
+      body: JSON.stringify(getChatPayload({ disease, query, location, sessionId, userId }))
     });
 
     if (!response.ok) {

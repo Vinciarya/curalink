@@ -3,8 +3,8 @@ const { buildSystemPrompt } = require('../prompts/systemPrompt');
 const { buildUserPrompt } = require('../prompts/userPrompt');
 
 const PRIMARY_MODEL = 'llama-3.3-70b-versatile';
-const FALLBACK_MODEL = 'mixtral-8x7b-32768';
-const FAST_MODEL = 'llama-3.1-8b-instant';
+const FALLBACK_MODEL = 'llama-3.1-70b-versatile';
+const EMERGENCY_MODEL = 'llama-3.1-8b-instant';
 
 async function synthesize(params) {
   const { onStream, ...promptParams } = params;
@@ -16,8 +16,6 @@ async function synthesize(params) {
     console.log(`[GROQ] Calling ${model} with streaming...`);
     const startTime = Date.now();
     
-    // We remove response_format: { type: 'json_object' } if we are streaming, 
-    // or we can keep it but we just stream the JSON string chunks. Groq supports streaming JSON mode.
     const stream = await groq.chat.completions.create({
       messages: [
         { role: 'system', content: systemPrompt },
@@ -40,32 +38,34 @@ async function synthesize(params) {
     }
 
     const processingMs = Date.now() - startTime;
-    // With streaming, total_tokens isn't always returned directly in the stream unless stream_options is set.
-    // We'll approximate or default to 0 if not available.
-    const tokensUsed = 0; 
     console.log(`[GROQ] Streaming success with ${model}.`);
     
     const parsed = JSON.parse(fullContent);
     return {
       ...parsed,
-      _meta: { model, tokensUsed, processingMs }
+      _meta: { model, tokensUsed: 0, processingMs }
     };
   };
 
   try {
     return await callModel(PRIMARY_MODEL);
   } catch (error) {
-    console.warn(`[GROQ] PRIMARY_MODEL error: ${error.message}. Falling back to FALLBACK_MODEL.`);
+    console.warn(`[GROQ] PRIMARY_MODEL error: ${error.message}. Falling back to ${FALLBACK_MODEL}.`);
     try {
       return await callModel(FALLBACK_MODEL);
     } catch (fallbackError) {
-      console.error(`[GROQ] FALLBACK_MODEL error: ${fallbackError.message}`);
-      throw new Error('Both primary and fallback models failed.');
+      console.warn(`[GROQ] FALLBACK_MODEL error: ${fallbackError.message}. Falling back to ${EMERGENCY_MODEL}.`);
+      try {
+        return await callModel(EMERGENCY_MODEL);
+      } catch (emergencyError) {
+        console.error(`[GROQ] EMERGENCY_MODEL error: ${emergencyError.message}`);
+        throw new Error('All Groq models (Primary, Fallback, and Emergency) failed or reached limits.');
+      }
     }
   }
 }
 
-async function callRaw({ model = FAST_MODEL, system, user, maxTokens = 512, temperature = 0.1 }) {
+async function callRaw({ model = EMERGENCY_MODEL, system, user, maxTokens = 512, temperature = 0.1 }) {
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const response = await groq.chat.completions.create({
     messages: [

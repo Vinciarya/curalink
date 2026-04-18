@@ -22,9 +22,12 @@ export default function InputForm() {
     addUserMessage(searchQuery);
     startStream();
 
-    const { patientContext: currentContext, sessionId: currentSessionId } = useChatStore.getState();
+    const { patientContext: currentContext, sessionId: currentSessionId, userId: currentUserId } = useChatStore.getState();
 
+    console.log('[DEBUG] Starting research with userId:', currentUserId);
+    
     streamChat({
+      userId: currentUserId || localStorage.getItem('curalink_user_id'),
       disease: currentContext.disease,
       query: searchQuery,
       location: currentContext.location,

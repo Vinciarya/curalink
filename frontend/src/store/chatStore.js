@@ -22,13 +22,24 @@ export const useChatStore = create((set) => ({
 
   // ── PATIENT CONTEXT ───────────────────────────────────────
   patientContext: { patientName: '', disease: '', location: '' },
+  userId: (() => {
+    const saved = localStorage.getItem('curalink_user_id');
+    if (saved) return saved;
+    const fresh = `user_${Math.random().toString(36).slice(2, 11)}`;
+    localStorage.setItem('curalink_user_id', fresh);
+    return fresh;
+  })(),
   isPatientFormOpen: true, // show on first load
 
   // ── HISTORY ───────────────────────────────────────────────
   sessionHistory: [], // list from GET /api/sessions
 
   // ── ACTIONS ───────────────────────────────────────────────
-  setPatientContext: (ctx) => set({ patientContext: ctx, isPatientFormOpen: false }),
+  setPatientContext: (ctx) => {
+    const userId = localStorage.getItem('curalink_user_id') || `user_${Math.random().toString(36).slice(2, 11)}`;
+    localStorage.setItem('curalink_user_id', userId);
+    set({ patientContext: ctx, isPatientFormOpen: false, userId });
+  },
 
   startStream: () => set({
     isStreaming: true,
@@ -150,5 +161,5 @@ export const useChatStore = create((set) => ({
 
   setSessionHistory: (history) => set({ sessionHistory: history }),
 
-  newSession: () => set({ ...initialSessionState, isPatientFormOpen: true }),
+  newSession: () => set(state => ({ ...initialSessionState, isPatientFormOpen: true, userId: state.userId })),
 }));

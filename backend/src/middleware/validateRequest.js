@@ -2,6 +2,7 @@ const Joi = require('joi');
 
 const chatSchema = Joi.object({
   sessionId: Joi.string().uuid().optional(),
+  userId: Joi.string().required(), // Added for identity linking
   patientName: Joi.string().max(100).optional(),
   disease: Joi.string().min(2).max(200).required(),
   query: Joi.string().min(3).max(1000).required(),
@@ -9,6 +10,7 @@ const chatSchema = Joi.object({
 });
 
 const validateChatRequest = (req, res, next) => {
+  console.log('[DEBUG] Incoming payload:', JSON.stringify(req.body));
   const normalizedBody = {
     ...req.body,
     sessionId: req.body?.sessionId || undefined,

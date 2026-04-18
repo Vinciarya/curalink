@@ -37,11 +37,13 @@ const MessageSchema = new mongoose.Schema({
     tokensUsed: Number
   },
   response: { type: mongoose.Schema.Types.Mixed },
+  embedding: [Number], // Local vector for cross-conversation search
   timestamp: { type: Date, default: Date.now }
 }, { _id: true });
 
 const SessionSchema = new mongoose.Schema({
   sessionId: { type: String, required: true, unique: true, index: true },
+  userId: { type: String, required: true, index: true }, // Added for cross-conversation linking
   patientName: { type: String, default: 'Anonymous' },
   disease: { type: String, required: true },
   location: String,

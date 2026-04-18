@@ -8,12 +8,24 @@ import { Badge } from './badge';
 import { Check, ClipboardCheck, LayoutGrid, Search, Sparkles } from 'lucide-react';
 
 export default function PatientForm() {
-  const { setPatientContext } = useChatStore();
+  const { setPatientContext, sessionHistory, loadSession } = useChatStore();
+  const latestSession = sessionHistory && sessionHistory.length > 0 ? sessionHistory[0] : null;
   const [patientName, setPatientName] = useState('');
   const [disease, setDisease] = useState('');
   const [location, setLocation] = useState('');
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
+
+  const handleResume = async () => {
+    if (!latestSession) return;
+    try {
+      const resp = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/sessions/${latestSession.sessionId}`);
+      const fullData = await resp.json();
+      loadSession(fullData);
+    } catch (e) {
+      console.error("Failed to resume session:", e);
+    }
+  };
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -108,7 +120,17 @@ export default function PatientForm() {
 
           {error ? <div className="text-sm text-red-400/80 bg-red-400/5 p-3 rounded-lg border border-red-400/10 italic">{error}</div> : null}
 
-          <div className="flex justify-end pt-4">
+          <div className="flex justify-end items-center gap-4 pt-4">
+            {latestSession && (
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={handleResume}
+                className="border-primary/20 text-primary hover:bg-primary/5 font-bold rounded-xl h-12 px-6 transition-all"
+              >
+                Resume: {latestSession.disease}
+              </Button>
+            )}
             <Button 
                 type="submit" 
                 size="lg" 

@@ -1,4 +1,4 @@
-function buildUserPrompt({ patientName, disease, userQuery, location, conversationHistory, publications, trials, retrievalStats }) {
+function buildUserPrompt({ patientName, disease, userQuery, location, conversationHistory, pastMemories, publications, trials, retrievalStats }) {
   let prompt = '';
 
   // 1. PATIENT CONTEXT
@@ -9,12 +9,22 @@ function buildUserPrompt({ patientName, disease, userQuery, location, conversati
   if (location) prompt += `Location: ${location}\n`;
   prompt += `\n`;
 
-  // 2. CONVERSATION HISTORY
-  prompt += `## CONVERSATION HISTORY\n`;
+  // 1b. CROSS-SESSION MEMORIES (LONG-TERM CONTEXT)
+  if (pastMemories && pastMemories.length > 0) {
+    prompt += `## RELEVANT PAST CONVERSATIONS\n`;
+    prompt += `The following snippets are from past chats with this user that might be relevant:\n`;
+    pastMemories.forEach(mem => {
+      prompt += `- ${mem}\n`;
+    });
+    prompt += `\n`;
+  }
+
+  // 2. CONVERSATION HISTORY (CURRENT SESSION)
+  prompt += `## CURRENT SESSION HISTORY\n`;
   if (!conversationHistory || conversationHistory.length === 0) {
     prompt += `This is the first message in this session.\n`;
   } else {
-    for (const msg of conversationHistory.slice(-5)) { // Use last N turns depending on context, let's say all
+    for (const msg of conversationHistory.slice(-5)) {
       prompt += `[${msg.role === 'user' ? 'USER' : 'ASSISTANT'}]: ${msg.content}\n`;
     }
   }
@@ -79,6 +89,7 @@ function buildUserPrompt({ patientName, disease, userQuery, location, conversati
   // 6. YOUR TASK
   prompt += `## YOUR TASK\n`;
   prompt += `Synthesize the retrieved evidence to answer the query specifically for the disease context (${disease}).\n`;
+  prompt += `CRITICAL: If 'RELEVANT PAST CONVERSATIONS' exist, prioritize this historical context to provide a personalized assistant experience. If the user asks about the past, use these memories as the primary source of truth.\n`;
   
   // 7. Location note
   if (location) {
@@ -89,6 +100,13 @@ function buildUserPrompt({ patientName, disease, userQuery, location, conversati
   if (conversationHistory && conversationHistory.length > 0) {
     prompt += `Note: This is a follow-up question. Use conversation history to maintain context.\n`;
   }
+
+  // 8b. HYBRID REASONING INSTRUCTION
+  prompt += `## IMPORTANT: RESPONSE MODE\n`;
+  prompt += `If the user asks a question about your previous conversations, their history, or to summarize past sessions (Memory-focused query):\n`;
+  prompt += `- USE THE 'RELEVANT PAST CONVERSATIONS' as your primary source.\n`;
+  prompt += `- DO NOT say "No relevant evidence found" if the answer is in the past memories.\n`;
+  prompt += `- Fill the JSON fields using the historical context (e.g., 'resourceInsights' can summarize past findings).\n`;
   prompt += `\n`;
 
   // 9. REQUIRED OUTPUT FORMAT
@@ -98,10 +116,10 @@ function buildUserPrompt({ patientName, disease, userQuery, location, conversati
   "conditionOverview": "2-3 sentence overview of ${disease} relevant to this query. Cite sources.",
   "researchInsights": [
     {
-      "finding": "Specific research finding, fully cited",
-      "sourceRefs": ["P1", "P2"],
+      "finding": "Unified research finding that combines data from both literature and trials.",
+      "sourceRefs": ["P1", "T1"],
       "confidence": "high|moderate|low",
-      "explanation": "Why this confidence level"
+      "explanation": "Summarize how the trials and papers confirm or contradict each other for this specific finding."
     }
   ],
   "clinicalTrials": [

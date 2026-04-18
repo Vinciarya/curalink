@@ -20,17 +20,20 @@ ${location ? `Location: ${location}\n` : ''}
 User Question: ${query}
 
 ## INSTRUCTIONS
-1. Analyze the 'User Question' in the context of the 'CONVERSATION HISTORY' and 'Patient Context'.
-2. If the question contains pronouns (e.g. "it", "they", "this treatment") or is a follow-up, resolve them using history.
-3. Generate optimized search terms for scientific databases.
+1. Analyze the 'User Question' in the context of the 'Disease of Interest' and 'Patient Context'.
+2. If 'needsSearch' is true, you MUST expand the query into a scientific search string that ALWAYS includes the Disease of Interest.
+   - Example: If Query is "Deep Brain Stimulation" and Disease is "Parkinson's", search "Deep Brain Stimulation + Parkinson's disease".
+3. If the user is asking about history or meta-questions, set "needsSearch" to false.
+4. Ensure 'pubmedQuery' uses proper scientific terminology (e.g., "Parkinson Disease" instead of just "Parkinson's").
 
 Return ONLY a JSON object matching this exact schema:
 {
-  "pubmedQuery": "optimized PubMed query with MeSH terms and disease context",
-  "openalexQuery": "natural language query for OpenAlex semantic search",
-  "trialsCondition": "exact condition term for ClinicalTrials.gov",
-  "trialsIntervention": "intervention/treatment term for ClinicalTrials.gov",
-  "keyTerms": ["term1", "term2", "term3", "term4", "term5"],
+  "needsSearch": true|false,
+  "pubmedQuery": "Optimized string like 'Treatment X' AND 'Disease Y'",
+  "openalexQuery": "Semantic string merging Query + Disease",
+  "trialsCondition": "Exact Disease of Interest",
+  "trialsIntervention": "The core treatment/query mentioned",
+  "keyTerms": ["list", "of", "merged", "terms"],
   "diseaseAliases": ["alias1", "alias2"]
 }`;
 
