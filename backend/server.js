@@ -30,9 +30,15 @@ app.use('/api/sessions', sessionRoutes);
 app.use(errorHandler);
 
 const start = async () => {
-  await connectDB();
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => console.log(`🧬 Curalink backend running on port ${PORT}`));
+  
+  try {
+    await connectDB();
+    console.log('✅ Connected to MongoDB');
+  } catch (dbErr) {
+    console.error('❌ MongoDB Connection Error:', dbErr.message);
+  }
 };
 
 start().catch(console.error);
