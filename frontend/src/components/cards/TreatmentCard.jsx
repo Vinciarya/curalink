@@ -58,8 +58,11 @@ export default function TreatmentCard() {
             </div>
             <div className="flex-1">
               <p className="text-[14px] text-foreground font-bold leading-relaxed">
-                {typeof insight === 'string' ? insight : JSON.stringify(insight)}
+                {typeof insight === 'string' ? insight : (insight.finding || insight.insight)}
               </p>
+              {insight.explanation && (
+                <p className="text-[11px] text-muted mt-1 font-medium italic">{insight.explanation}</p>
+              )}
             </div>
           </div>
         ))}

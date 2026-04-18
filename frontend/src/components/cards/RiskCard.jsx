@@ -38,7 +38,7 @@ export default function RiskCard() {
             {gaps.map((gap, idx) => (
               <li key={idx} className="leading-relaxed flex gap-3 items-start p-2 rounded-lg hover:bg-red-50 transition-colors">
                  <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                 {typeof gap === 'string' ? gap : JSON.stringify(gap)}
+                 {typeof gap === 'string' ? gap : (gap.gap || gap.reasoning || JSON.stringify(gap))}
               </li>
             ))}
           </ul>

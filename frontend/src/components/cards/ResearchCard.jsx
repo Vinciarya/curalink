@@ -24,16 +24,16 @@ export default function ResearchCard() {
 
   if (trials.length === 0) {
     return (
-      <Card className="rounded-2xl border border-white/5 bg-black/20 shadow-xl backdrop-blur-md overflow-hidden relative group transition-all duration-300 hover:bg-black/30 hover:border-white/10">
-        <CardHeader className="pb-3 border-b border-white/5 bg-white/[0.02]">
-          <CardTitle className="text-[15px] font-semibold flex items-center gap-2.5 text-slate-100 tracking-wide">
-            <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400">
+      <Card className="rounded-2xl border border-border bg-accent-soft shadow-sm overflow-hidden relative group transition-all duration-300 hover:bg-accent-light">
+        <CardHeader className="pb-3 border-b border-border bg-white/50">
+          <CardTitle className="text-[14px] font-black flex items-center gap-2.5 text-foreground tracking-wide uppercase">
+            <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
               <Microscope className="w-4 h-4" />
             </div>
             Clinical Trial Tracking
           </CardTitle>
         </CardHeader>
-        <CardContent className="py-8 text-center text-xs text-slate-500 italic">
+        <CardContent className="py-8 text-center text-xs text-muted italic font-bold">
           No specific clinical trials identified in high-confidence literature.
         </CardContent>
       </Card>
@@ -41,29 +41,33 @@ export default function ResearchCard() {
   }
 
   return (
-    <Card className="rounded-2xl border border-white/5 bg-black/20 shadow-xl backdrop-blur-md overflow-hidden relative group transition-all duration-300 hover:bg-black/30 hover:border-white/10">
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      <CardHeader className="pb-3 border-b border-white/5 bg-white/[0.02]">
-        <CardTitle className="text-[15px] font-semibold flex items-center gap-2.5 text-slate-100 tracking-wide">
-          <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400">
+    <Card className="rounded-2xl border border-border bg-accent-soft shadow-sm overflow-hidden relative group transition-all duration-300 hover:bg-accent-light">
+      <CardHeader className="pb-3 border-b border-border bg-white/50">
+        <CardTitle className="text-[14px] font-black flex items-center gap-2.5 text-foreground tracking-wide uppercase">
+          <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
             <Microscope className="w-4 h-4" />
           </div>
           Relevant Clinical Trials
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-5 space-y-6">
+      <CardContent className="pt-5 space-y-4">
         {trials.map((trial, idx) => (
-          <div key={idx} className="grid gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
+          <div key={idx} className="grid gap-3 p-4 rounded-xl bg-white border border-border shadow-sm transition-all hover:border-primary/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                 <Beaker className="w-3.5 h-3.5 text-cyan-400" />
-                 <h4 className="text-[13px] font-semibold text-slate-200">Trial Identifier</h4>
+                 <Beaker className="w-3.5 h-3.5 text-primary" />
+                 <h4 className="text-[12px] font-black uppercase tracking-tight text-primary">Trial Identifier</h4>
               </div>
-              <Badge variant="outline" className="text-cyan-400 border-cyan-400/30 font-medium text-[9px] tracking-widest uppercase bg-cyan-400/5">Active</Badge>
+              <Badge variant="outline" className="text-[9px] uppercase tracking-widest bg-accent-soft border-border text-muted">Active</Badge>
             </div>
-            <p className="text-[12px] text-slate-400 leading-relaxed font-sans italic">
-              {typeof trial === 'string' ? trial : JSON.stringify(trial)}
-            </p>
+            <div className="flex flex-col gap-1.5 pt-1">
+              <h5 className="text-[13px] font-black text-foreground leading-snug">
+                {trial.title || "Untitled Study"}
+              </h5>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans italic">
+                {trial.relevance || trial.citation || ""}
+              </p>
+            </div>
           </div>
         ))}
       </CardContent>
