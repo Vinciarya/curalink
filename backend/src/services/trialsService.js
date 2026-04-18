@@ -44,15 +44,25 @@ class ClinicalTrialsService {
     if (location)     base['query.locn'] = location;
 
     try {
-      const [recruitingRes, allRes] = await Promise.allSettled([
+      let [recruitingRes, allRes] = await Promise.allSettled([
         this._fetch({ ...base, 'filter.overallStatus': 'RECRUITING' }),
         this._fetch(base),
       ]);
 
-      const recruiting = recruitingRes.status === 'fulfilled' ? recruitingRes.value.studies    : [];
-      const all        = allRes.status        === 'fulfilled' ? allRes.value.studies           : [];
-      const totalCount = allRes.status        === 'fulfilled' ? allRes.value.totalCount
-                       : recruitingRes.status === 'fulfilled' ? recruitingRes.value.totalCount : 0;
+      let recruiting = recruitingRes.status === 'fulfilled' ? recruitingRes.value.studies    : [];
+      let all        = allRes.status        === 'fulfilled' ? allRes.value.studies           : [];
+
+      // FALLBACK: If we got 0 hits and we were searching with an intervention, try condition-only
+      if (all.length === 0 && intervention) {
+        console.log(`[Trials] zero hits for "${condition}" + "${intervention}". Retrying broad...`);
+        const broadBase = { ...base };
+        delete broadBase['query.intr'];
+        
+        const retryRes = await this._fetch(broadBase);
+        all = retryRes.studies || [];
+      }
+
+      const totalCount = allRes.status        === 'fulfilled' ? (allRes.value.totalCount || all.length) : all.length;
 
       if (recruitingRes.status === 'rejected')
         console.error('[Trials] RECRUITING request failed:', recruitingRes.reason?.message);
