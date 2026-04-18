@@ -3,10 +3,11 @@ const mongoose = require('mongoose');
 const connectDB = async (retries = 5) => {
   for (let i = 0; i < retries; i++) {
     try {
+      const isProduction = process.env.NODE_ENV === 'production';
       await mongoose.connect(process.env.MONGODB_URI, {
         serverSelectionTimeoutMS: 10000,
         tls: true,
-        tlsAllowInvalidCertificates: true,
+        tlsAllowInvalidCertificates: !isProduction,
       });
       console.log('✅ MongoDB connected');
       return;
