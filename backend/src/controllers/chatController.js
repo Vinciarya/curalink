@@ -36,8 +36,13 @@ const chat = async (req, res) => {
     session.messages.push({ role: 'user', content: query, query });
     session.totalQueries += 1;
 
-    // 4. Expand query using Groq (context-aware: merges disease + query)
-    const expanded = await expand({ disease: session.disease, query, location: session.location });
+    // 4. Expand query using Groq (context-aware: merges history + disease + query)
+    const expanded = await expand({ 
+      disease: session.disease, 
+      query, 
+      location: session.location,
+      conversationHistory
+    });
     sendEvent('expanded', { expanded, message: 'Query expanded. Searching literature and trials...' });
 
     // 5. Check cache first

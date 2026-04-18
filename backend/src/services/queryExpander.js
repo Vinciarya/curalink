@@ -14,9 +14,9 @@ function simpleFallback({ disease, query }) {
   };
 }
 
-async function expand({ disease, query, location }) {
+async function expand({ disease, query, location, conversationHistory }) {
   try {
-    const { system, user } = buildExpansionPrompt({ disease, query, location });
+    const { system, user } = buildExpansionPrompt({ disease, query, location, conversationHistory });
     const responseStr = await callRaw({
       model: FAST_MODEL,
       system: system,

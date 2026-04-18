@@ -96,9 +96,9 @@ function buildUserPrompt({ patientName, disease, userQuery, location, conversati
   prompt += `Return ONLY this JSON object. No text before or after. No markdown fences.\n`;
   prompt += `{
   "conditionOverview": "2-3 sentence overview of ${disease} relevant to this query. Cite sources.",
-  "keyInsights": [
+  "researchInsights": [
     {
-      "finding": "Specific finding, fully cited",
+      "finding": "Specific research finding, fully cited",
       "sourceRefs": ["P1", "P2"],
       "confidence": "high|moderate|low",
       "explanation": "Why this confidence level"
@@ -117,7 +117,7 @@ function buildUserPrompt({ patientName, disease, userQuery, location, conversati
   "researchGaps": "What the literature does NOT cover about this query. Be honest.",
   "patientGuidance": "Practical next steps for the patient, grounded in the research. Not medical advice.",
   "disclaimer": "This is research information only. Consult a qualified healthcare professional before making any medical decisions.",
-  "sourcesUsed": ["P1", "P3", "T2"]
+  "sourceAttribution": ["P1", "P3", "T1"]
 }`;
 
   return prompt;

@@ -1,19 +1,28 @@
-function buildExpansionPrompt({ disease, query, location }) {
+function buildExpansionPrompt({ disease, query, location, conversationHistory = [] }) {
   const system = `You are a medical query expansion engine. 
 Your only job is to expand user queries into better search terms for PubMed, 
 OpenAlex, and ClinicalTrials.gov. 
 Return ONLY JSON. No explanation. No markdown.`;
 
-  const user = `Expand the following medical query:
-Disease: ${disease}
-Query: ${query}
-${location ? `Location: ${location}\n` : ''}
+  let user = '';
+  
+  if (conversationHistory.length > 0) {
+    user += `## CONVERSATION HISTORY\n`;
+    conversationHistory.forEach(msg => {
+      user += `[${msg.role.toUpperCase()}]: ${msg.content}\n`;
+    });
+    user += `\n`;
+  }
 
-Example: disease="Parkinson's disease", query="deep brain stimulation"
-→ pubmedQuery: "(deep brain stimulation[MeSH] OR DBS[Title/Abstract]) AND (Parkinson disease[MeSH])"
-→ openalexQuery: "deep brain stimulation neurostimulation Parkinson disease treatment"
-→ trialsCondition: "Parkinson Disease"
-→ trialsIntervention: "deep brain stimulation"
+  user += `## NEW USER QUERY
+Patient Context: ${disease}
+${location ? `Location: ${location}\n` : ''}
+User Question: ${query}
+
+## INSTRUCTIONS
+1. Analyze the 'User Question' in the context of the 'CONVERSATION HISTORY' and 'Patient Context'.
+2. If the question contains pronouns (e.g. "it", "they", "this treatment") or is a follow-up, resolve them using history.
+3. Generate optimized search terms for scientific databases.
 
 Return ONLY a JSON object matching this exact schema:
 {

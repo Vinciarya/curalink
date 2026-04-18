@@ -17,8 +17,8 @@ export default function TreatmentCard() {
       try { data = JSON.parse(response); } catch (e) { data = {}; }
     }
     
-    if (data.keyInsights) {
-      insights = Array.isArray(data.keyInsights) ? data.keyInsights : [data.keyInsights];
+    if (data.researchInsights) {
+      insights = Array.isArray(data.researchInsights) ? data.researchInsights : [data.researchInsights];
     }
   }
 

@@ -19,7 +19,7 @@ export default function SynthesisCard({ response }) {
       </div>
 
       {response.conditionOverview ? <ConditionOverview text={response.conditionOverview} /> : null}
-      {response.keyInsights && response.keyInsights.length > 0 ? <InsightsList insights={response.keyInsights} /> : null}
+      {response.researchInsights && response.researchInsights.length > 0 ? <InsightsList insights={response.researchInsights} /> : null}
       
       {response.clinicalTrials && response.clinicalTrials.length > 0 && (
         <div className="flex flex-col gap-3 mt-4">
@@ -35,7 +35,7 @@ export default function SynthesisCard({ response }) {
       {response.patientGuidance ? <PatientGuidance text={response.patientGuidance} /> : null}
       {response.researchGaps ? <ResearchGaps text={response.researchGaps} /> : null}
       {response.disclaimer ? <Disclaimer text={response.disclaimer} /> : null}
-      {response.sourcesUsed && response.sourcesUsed.length > 0 ? <SourcesFooter sourcesUsed={response.sourcesUsed} /> : null}
+      {response.sourceAttribution && response.sourceAttribution.length > 0 ? <SourcesFooter sourceAttribution={response.sourceAttribution} /> : null}
     </Card>
   );
 }
